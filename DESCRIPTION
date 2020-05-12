@@ -1,0 +1,16 @@
+Package: mcfda
+Type: Package
+Title: mean and covariance estimation for functional data analysis
+Version: 0.1.0
+Author: Zhenhua Lin
+Maintainer: The package maintainer <linulysses@gmail.com>
+Description: mean and covariance estimation for functional data analysis
+License: GNU General Public License, version 3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.1
+Imports: Rcpp (>= 0.11.0), locpol, Rdpack
+LinkingTo: Rcpp, RcppEigen
+Suggests: knitr, rmarkdown
+VignetteBuilder: knitr
+RdMacros: Rdpack
