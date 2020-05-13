@@ -2,7 +2,7 @@
 Mean and covariance estimation for functional data analysis
 
 ## Install
-devtools::install_github("linulysses/hdanova")
+devtools::install_github("linulysses/mcfda")
 
 
 ## Demonstration
