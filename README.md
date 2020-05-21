@@ -12,7 +12,9 @@ set.seed(1)
 
 ### set up mean and cov functions and synthesize data functional dataset
 mu <- function(s) sin(2*pi*s)
+
 cov <- synfd::matern
+
 D <- synfd::sparse.fd(mu=mu, X=synfd::gaussian.process(cov), n=100, m=5)
 
 ### estimate mean by 'FOURIER' (local polynomial) method
