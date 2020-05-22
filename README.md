@@ -39,7 +39,7 @@ lines(regular.grid(),mu(regular.grid()))
 
 ### estimate covariance by 'PACE' 
 cov.obj <- covfunc(D$t,D$y,newt=NULL,mu=mu.obj,method='PACE',
-                   tuning='cv',weig=NULL,kernel='gauss',delta=Inf)
+                   tuning='GCV',weig=NULL,kernel='gauss',delta=Inf)
 
 
 grid <- regular.grid()
@@ -56,7 +56,7 @@ mean((cov.hat-cov0)^2) / mean(cov0^2)
 
 ### estimate covariance by 'FOURIER' 
 cov.obj <- covfunc(D$t,D$y,newt=NULL,mu=mu.obj,method='FOURIER',
-                   tuning='cv',weig=NULL)
+                   tuning='lle',weig=NULL)
 
 ### evaluate the estimated cov at grid
 cov.hat <- predict(cov.obj,grid)
