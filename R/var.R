@@ -13,7 +13,7 @@
 #'         \item{When \code{method='FOURIER'}, additional parameters \code{q},\code{rho},\code{ext} and \code{domain} are optional. If they are not provided, then they will be deduced from data or selected by the specified \code{tuning} method.}
 #'     }
 #' @export
-var.func <- function(Lt,Ly,newt=NULL,sig2=NULL,method=c('PACE','FOURIER'),mu=NULL,weig=NULL,...)
+varfunc <- function(Lt,Ly,newt=NULL,sig2=NULL,method=c('PACE','FOURIER'),mu=NULL,weig=NULL,...)
 {
     method <- match.arg(method)
     if(is.list(Lt) && is.list(Ly))
@@ -28,7 +28,7 @@ var.func <- function(Lt,Ly,newt=NULL,sig2=NULL,method=c('PACE','FOURIER'),mu=NUL
     }
     else stop('unsupported data type')
 
-    if(is.null(sig2)) sig2 <- noise.var(Lt,Ly)
+    if(is.null(sig2)) sig2 <- sigma2(Lt,Ly)
 
 
     if(is.null(mu)) mu <- meanfunc(Lt,Ly,method=method)

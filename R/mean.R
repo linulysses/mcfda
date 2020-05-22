@@ -52,7 +52,7 @@ meanfunc <- function(t,y,newt=NULL,method=c('PACE','FOURIER'),
         if(ncol(y) != length(t))
             stop('the number of columns must match the length of t')
         if(method=='PACE')
-            stop('method=PACE for regular data is not supported yet')
+            R <- mean.pace(t,y,tuning,weig,...)
         else
             R <- mean.basis(t,y,tuning,weig,...)
     }
@@ -81,16 +81,31 @@ mean.pace <- function(t,y,tuning,weig,...)
         domain <- c(domain[1]-0.01*(domain[2]-domain[1]),
                     domain[2]+0.01*(domain[2]-domain[1]))
     }
+    
+    if(is.list(t))
+    {
+        n <- length(t)
+        x <- unlist(t)
+        y <- unlist(y)
+        
+        # expand weig into the same format of t
+        mi <- sapply(t,length)
+        weig <- lapply(1:length(t),function(i) rep(weig[i],mi[i]))
+        
+        weig <- unlist(weig)
+        
+        datatype <- 'irregular'
+    }
+    else
+    {
+        n <- length(t)
+        weig <- rep(1/n,n)
+        datatype <- 'regular'
+        
+        x <- t
+        y <- apply(y,2,mean)
+    }
 
-    n <- length(t)
-    x <- unlist(t)
-    y <- unlist(y)
-
-    # expand weig into the same format of t
-    mi <- sapply(t,length)
-    weig <- lapply(1:length(t),function(i) rep(weig[i],mi[i]))
-
-    weig <- unlist(weig)
 
     kernel <- toupper(get.optional.param('kernel',others,'EPANECHNIKOV'))
     kernel <- match.arg(kernel,c('GAUSSIAN','EPANECHNIKOV'))

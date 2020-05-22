@@ -3,8 +3,8 @@
 #' @param y a list of vectors containing observed values at \code{t}
 #' @param h the bandwidth
 #' @return the estimated variance of the measurement error
-#' @export noise.var
-noise.var <- function(t,y,h=NULL)
+#' @export sigma2
+sigma2 <- function(t,y,h=NULL)
 {
 
     if(is.list(y)) # irregular data
