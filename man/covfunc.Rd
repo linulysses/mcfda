@@ -2,36 +2,88 @@
 % Please edit documentation in R/cov.R
 \name{covfunc}
 \alias{covfunc}
-\title{Estimate the cov function from functional data/snippets}
+\title{Estimate the cov function from functional data/snippets.}
 \usage{
-covfunc(t, y, newt = NULL, mu = NULL, method = c("FOURIER", "PACE"),
-  ...)
+covfunc(t, y, newt = NULL, mu = NULL, weig = NULL,
+  method = c("FOURIER", "PACE", "SP"), ...)
 }
 \arguments{
-\item{t}{a list of vectors (for irregular design) or a vector (for regular design) containing time points of observations for each individual. Each vector should be in ascending order}
+\item{t}{a list of vectors (for irregular design) or a vector (for regular design) containing time points of observations for each individual; each vector should be in ascending order.}
 
-\item{y}{a list of vectors (for irregular design) or a matrix (for regular design) containing the observed values at \code{t}. If it is a matrix, the columns correspond to the time points in the vector \code{t}}
+\item{y}{a list of vectors (for irregular design) or a matrix (for regular design) containing the observed values at \code{t}; if it is a matrix, the columns correspond to the time points in the vector \code{t}.}
 
-\item{newt}{a list of vectors or a vector containing time points of observations to be evaluated. If NULL, then newt is treated as t}
+\item{newt}{a list of vectors or a vector containing time points of observations to be evaluated; if NULL, then \code{newt} is treated as \code{t}.}
 
 \item{mu}{the known or estimated mean function object; it must be a scalar (viewed as a constant function), a function handle, or an object obtained by calling \code{meanfunc}}
 
-\item{method}{estimation method, 'PACE' or 'FOURIER'}
+\item{weig}{a vector of \code{length(t)} of weight for each subject, or 'OBS' or 'SUBJ' for weighting scheme}
+
+\item{method}{estimation method, 'PACE' or 'FOURIER' or 'SP' (for semiparametric method)}
 
 \item{...}{other parameters required depending on the \code{method} and \code{tuning}; see details}
 
 \item{tuning}{tuning method to select possible tuning parameters}
 }
 \value{
-an object of the class 'covfunc' containing necessary information to predict/evaluate the estimated covariance function
+an object of the class 'covfunc' containing necessary information to predict/evaluate the estimated covariance function and the following output:
+    \itemize{
+        \item{When \code{method='PACE'}, additional parameters are}
+        \describe{
+            \item{\code{fitted}}{fitted value at the grid spanned by \code{newt}}
+            \item{\code{delta}}{the largest span among all subjects; note that it is not normalized by the span of the whole study.}
+            \item{\code{bw}}{selected bandwidth by \code{tuning} method if \code{NULL} is the input for \code{bw}.}
+            \item{\code{mu}}{estimated mean function if \code{NULL} is the input.}
+        }
+        \item{When \code{method='FOURIER'}, additional parameters are}
+        \describe{
+            \item{\code{fitted}}{fitted value at the grid spanned by \code{newt}}
+            \item{\code{q}}{selected \code{q} if \code{NULL} is the input}
+            \item{\code{rho}}{selected \code{rho} if \code{NULL} is the input}
+            \item{\code{ext}}{selected \code{ext} if \code{NULL} is the input}
+            \item{\code{C}}{estimated coefficients}
+            \item{\code{mu}}{estimated mean function if \code{NULL} is the input.}
+        }
+        \item{When \code{method='SP'}, additional parameters are} 
+        \describe{
+            \item{\code{domain}}{time domain; if \code{NULL} then estimated by \code{(min(t),max(t))}.}
+            \item{\code{rho}}{estimated function of the form \code{function(x,y)} of the correlation structure.}
+            \item{\code{sig2e}}{estiamted variance of measurement error if \code{NULL} is the input.}
+            \item{\code{sig2x}}{estiamted variance function if \code{NULL} is the input.}
+            \item{\code{theta}}{estimated parameters for the correlation structure.}
+            \item{\code{mu}}{estimated mean function if \code{NULL} is the input.}
+        }
+    }
 }
 \description{
-Estimate the cov function from functional data/snippets
+Estimate the cov function from functional data/snippets.
 }
 \details{
 \itemize{
-        \item{When \code{method='PACE'}, additional parameters \code{kernel} and \code{deg} are required. \code{bw} as a scalar is optional. When \code{bw} is provided, the bandwidth is set to \code{bw}}
-        \item{When \code{method='FOURIER'}, additional parameters \code{q},\code{rho},\code{ext} and \code{domain} are optional. If they are not provided, then they will be deduced from data or selected by the specified \code{tuning} method.}
+        \item{When \code{method='PACE'}, additional parameters are}
+        \describe{
+            \item{\code{kernel}}{kernel type; supported are 'epanechnikov', "rectangular", "triangular", "quartic", "triweight", "tricube", "cosine", "gauss", "logistic", "sigmoid" and "silverman"; see https://en.wikipedia.org/wiki/Kernel_(statistics) for more details.}
+            \item{\code{deg}}{degree of the local polynomial regression; currently only \code{deg=1} is supported.}
+            \item{\code{bw}}{bandwidth}
+        }
+        \item{When \code{method='FOURIER'}, additional parameters are}
+        \describe{
+            \item{\code{q}}{number of basis functions; if \code{NULL} then selected by \code{tuning} method}
+            \item{\code{rho}}{roughness penalty parameter; if \code{NULL} then selected by \code{tuning} method}
+            \item{\code{ext}}{extension margin of Fourier extension; if \code{NULL} then selected by \code{tuning} method}
+            \item{\code{domain}}{time domain; if \code{NULL} then estimated by \code{(min(t),max(t))}}
+        }
+        \item{When \code{method='SP'}, additional parameters are} 
+        \describe{
+            \item{\code{domain}}{time domain; if \code{NULL} then estimated by \code{(min(t),max(t))}}
+            \item{\code{corf}}{function of the form \code{function(theta,x,y)} that specifies the correlation structure with parameter \code{theta}; If NULL then Matern correlation is used.}
+            \item{\code{sig2e}}{variance of measurement error; if \code{NULL} the automatically calculated by the calling \code{sigma2}}
+            \item{\code{sig2x}}{variance function; a function or an object generated by \code{varfunc}; if \code{NULL} then automatically estimated by calling \code{varfunc}}
+            \item{\code{pfunc}}{penalty function on the estimation; Not used yet.}
+            \item{\code{theta0}}{Initial value for the parameter \code{theta} to be estimated; \code{NULL} by default}
+            \item{\code{lb}}{vector of lower bound of \code{theta}; if \code{NULL} then set to \code{-Inf} for all coordinate}
+            \item{\code{ub}}{vector of upper bound of \code{theta}; if \code{NULL} then set to \code{Inf} for all coordinate}
+            \item{\code{D}}{dimension of \code{theta}}
+        }
     }
 }
 \examples{
@@ -44,6 +96,8 @@ cov.obj <- covfunc(D$t,D$y,newt=NULL,mu=mu.obj,method='FOURIER',
 cov.hat <- predict(cov.obj,regular.grid())
 }
 \references{
+\insertRef{Lin2020b}{mcfda}
+
 \insertRef{Lin2020}{mcfda}
 
 \insertRef{Yao2005}{mcfda}

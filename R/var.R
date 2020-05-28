@@ -36,7 +36,8 @@ varfunc <- function(Lt,Ly,newt=NULL,sig2=NULL,method=c('PACE','FOURIER'),mu=NULL
     if(datatype == 'irregular')
     {
         vLy <- lapply(1:n,function(i){
-            mui <- predict(mu,Lt[[i]])
+            if(is.function(mu)) mui <- mu(Lt[[i]])
+            else mui <- predict(mu,Lt[[i]])
             yi <- Ly[[i]] - mui
             yi <- yi^2
             yi
@@ -44,7 +45,8 @@ varfunc <- function(Lt,Ly,newt=NULL,sig2=NULL,method=c('PACE','FOURIER'),mu=NULL
     }
     else
     {
-        mui <- rep.row(predict(mu,Lt),n)
+        if(is.function(mu)) vmui <- rep.row(mu(Lt),n)
+        else mui <- rep.row(predict(mu,Lt),n)
         vLy <- (Ly - mui)^2
     }
 

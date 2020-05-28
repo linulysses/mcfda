@@ -39,7 +39,7 @@ lines(regular.grid(),mu(regular.grid()))
 
 ### estimate covariance by 'PACE' 
 cov.obj <- covfunc(D$t,D$y,newt=NULL,mu=mu.obj,method='PACE',
-                   tuning='GCV',weig=NULL,kernel='gauss',delta=Inf)
+                   tuning='GCV',weig=NULL,kernel='epanechnikov',delta=Inf)
 
 
 grid <- regular.grid()
@@ -57,6 +57,16 @@ mean((cov.hat-cov0)^2) / mean(cov0^2)
 ### estimate covariance by 'FOURIER' 
 cov.obj <- covfunc(D$t,D$y,newt=NULL,mu=mu.obj,method='FOURIER',
                    tuning='lle',weig=NULL)
+
+### evaluate the estimated cov at grid
+cov.hat <- predict(cov.obj,grid)
+
+### relative error in MISE
+mean((cov.hat-cov0)^2) / mean(cov0^2) 
+
+
+### estimate covariance by 'SP' 
+cov.obj <- covfunc(D$t,D$y,newt=NULL,method='SP',weig=NULL)
 
 ### evaluate the estimated cov at grid
 cov.hat <- predict(cov.obj,grid)
@@ -90,3 +100,4 @@ R <- fdapace::FPCA(D$y,D$t,optns)
 
 ### plot the first FPC, etc
 plot(R$phi[,1])
+
