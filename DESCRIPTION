@@ -1,10 +1,10 @@
 Package: mcfda
 Type: Package
-Title: mean and covariance estimation for functional data analysis
+Title: Mean and Covariance Estimation for Functional Data Analysis
 Version: 0.1.0
 Author: Zhenhua Lin
-Maintainer: The package maintainer <linulysses@gmail.com>
-Description: mean and covariance estimation for functional data analysis
+Maintainer: Zhenhua Lin <linulysses@gmail.com>
+Description: Mean and Covariance Estimation for Functional Data Analysis
 License: GNU General Public License, version 3
 Encoding: UTF-8
 LazyData: true

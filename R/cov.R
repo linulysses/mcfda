@@ -56,6 +56,7 @@
 #'         }
 #'         \item{When \code{method='SP'}, additional parameters are} 
 #'         \describe{
+#'             \item{\code{fitted}}{fitted value at the grid spanned by \code{newt}}
 #'             \item{\code{domain}}{time domain; if \code{NULL} then estimated by \code{(min(t),max(t))}.}
 #'             \item{\code{rho}}{estimated function of the form \code{function(x,y)} of the correlation structure.}
 #'             \item{\code{sig2e}}{estiamted variance of measurement error if \code{NULL} is the input.}
