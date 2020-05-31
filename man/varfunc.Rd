@@ -4,8 +4,16 @@
 \alias{varfunc}
 \title{Estimate the variance function}
 \usage{
-varfunc(Lt, Ly, newt = NULL, sig2 = NULL, method = c("PACE",
-  "FOURIER"), mu = NULL, weig = NULL, ...)
+varfunc(
+  Lt,
+  Ly,
+  newt = NULL,
+  sig2 = NULL,
+  method = c("PACE", "FOURIER"),
+  mu = NULL,
+  weig = NULL,
+  ...
+)
 }
 \arguments{
 \item{Lt}{a list (for irregular design) or a vector (for regular design) of observations in time domain}

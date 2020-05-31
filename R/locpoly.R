@@ -1,85 +1,116 @@
-
-
-#' one-dimensional local linear smoother
+#' one-dimensional local polynomial smoother
 #' @param x a vector of observed values of the predictor
 #' @param y a vector of observed values of the response
-#' @param newx a vector of new values of the predictor
-#' @param bw the bandwidth, either a numeric or an element from \code{c('cv','plug.in','thumb')}
-#' @param weig a vector of real numbers obtaining the weight for each observations
-#' @param kernel a kernel from the package locpol
-#' @param deg the degree of local polynomials
+#' @param h the bandwidth, either a numeric or NULL; if NULL, the automatically selected by five-fold CV
+#' @param newx a vector of new values of the predictor; set to \code{x} by default
+#' @param degree the degree of local polynomials, nonnegative integer
+#' @param weight a vector of real numbers obtaining the weight for each observations; if NULL, then equal weight
+#' @param kernel a kernel from the package locpol, supported are 'epanechnikov', "rectangular", "triangular", "quartic", "triweight", "tricube", "cosine", "gauss", "logistic", "sigmoid" and "silverman"
+#' @param sorted indicator of whether the array x and newx are sorted in increasing order 
 #' @return a list of the following elements
-#' \item{bw}{the selected bandwidth or input bandwidth}
+#' \item{h}{the selected bandwidth or input bandwidth}
 #' \item{x}{the original input}
 #' \item{y}{the original input}
-#' \item{weig}{the original input}
+#' \item{weight}{the original input}
 #' \item{kernel}{the original input}
-#' \item{deg}{the original input}
-loclin1D <- function(x,y,newx,bw='cv',
-                            weig=rep(1,length(y)),
-                            kernel=EpaK,deg=1)
+#' \item{degree}{the original input}
+#' \item{yhat}{the estimated response at \code{newx}}
+#' @example 
+#' x <- regular.grid()
+#' y <- sin(2*pi*x) + 0.1*rnorm(length(x))
+#' yhat <- lp1D(x,y)
+#' @export
+lp1D <- function(x,y,h=NULL,newx=x,degree=1,weight=NULL,kernel='epanechnikov',sorted=F)
 {
-    if(!is.numeric(bw))
-        bw <- compute.bw.1D(x,y,bw,weig,kernel,deg)
-
-    fitted <- locpol::locPolSmootherC(x, y, newx, bw, deg,kernel, weig=weig)$beta0
-    while(any(is.na(fitted) | is.infinite(fitted)))
+    if(is.null(weight)) weight <- rep(1,length(y))
+    
+    if(is.null(h)) h <- bw.lp1D(x,y,weight,kernel,degree,method='cv')
+    
+    if(sorted==F)
     {
-        warning('bw is two small. increase it by multiplier 1.2')
-        bw <- bw * 1.2
-        fitted <- locpol::locPolSmootherC(x, y, newx, bw, deg,kernel, weig=weig)$beta0
+        ord1 <- sort(x,index.return=T)$ix
+        x <- x[ord1]
+        y <- y[ord1]
+        
+        
+        ord2 <- sort(newx,index.return=T)$ix
+        
+        yhat <- rep(0,length(newx))
+        
+        yhat[ord2] <- csmoothmean(x=x,
+                                  z=y,
+                                  w=weight,
+                                  h=h,
+                                  kernel=kernel,
+                                  d=degree,
+                                  newx=newx[ord2])
     }
-    return(list(bw=bw,fitted=fitted,x=x,y=y,weig=weig,kernel=kernel,deg=deg))
+    else
+    {
+        yhat <- csmoothmean(x=x,
+                            z=y,
+                            w=weight,
+                            h=h,
+                            kernel=kernel,
+                            d=degree,
+                            newx=newx)
+    }
+    
+    list(yhat=yhat,x=x,y=y,kernel=kernel,h=h,degree=degree,weight=weight)
 }
+
+
 
 #' select bandwidth for one-dimensional local linear smoother
 #' @param x a vector of observed values of the predictor
 #' @param y a vector of observed values of the response
-#' @param method selection method
-#' @param weig a vector of real numbers obtaining the weight for each observations
+#' @param weight a vector of real numbers obtaining the weight for each observations
 #' @param kernel a kernel from the package locpol
-#' @param deg the degree of local polynomials
+#' @param degree the degree of local polynomials
+#' @param method selection method, supported is 'cv'
+#' @param K the number of folds, a parameter for CV method
+#' @param H candidate values of the bandwidth; if NULL, then automathcally generated
 #' @return the selected bandwidth
-#' @keywords internal
-compute.bw.1D <- function(x,y,method=c('cv','plug.in','thumb'),weig,kernel,deg)
+#' @example 
+#' x <- regular.grid()
+#' y <- sin(2*pi*x) + 0.1*rnorm(length(x))
+#' h <- bw.lp1D(x,y,rep(1,length(x)),kernel='epanechnikov',degree=1)
+#' lp1D(x,y,h=h)
+#' @export
+bw.lp1D <- function(x,y,weight,kernel,degree,method='cv',K=5,H=NULL)
 {
     bw <- NULL
     if(method=='cv')
     {
-        piBwSel <- locpol::pluginBw(x, y, deg, kernel,weig=weig)
-        thBwSel <- locpol::thumbBw(x, y, deg, kernel,weig=weig)
-        #interval <- c(min(piBwSel/2,thBwSel/2),max(thBwSel*2,piBwSel*2))
-        #interval <- c(piBwSel/2,piBwSel*2)
-        interval <- c(thBwSel/10,thBwSel*20)
-        max.it <- 10
-        it <- 0
-        best.bw <- piBwSel
-        while(it < max.it)
+        a <- min(x)
+        b <- max(x)
+        
+        if(is.null(H))  H <- 10^seq(-2,0,length.out=20) * (b-a)/3
+        #max.it <- 5
+        #it <- 0
+        n <- length(y)
+        
+        #while(it < max.it)
+        #{
+        E <- matrix(0,length(H),K)
+        tmp <- cv.partition(n,K)
+        for(j in 1:K)
         {
-            bw <- locpol::regCVBwSelC(x, y, deg, kernel, weig=weig, interval=interval)
-            if(bw > interval[1] && bw < interval[2]) break
-            else if (bw == best.bw) break
-            else if (bw < interval[1]){
-                interval[2] <- interval[1]
-                interval[1] <- interval[1] / 2
-            }
-            else
+            tridx <- tmp$training[[j]]
+            teidx <- tmp$test[[j]]
+            for(i in 1:length(H))
             {
-                interval[1] <- interval[2]
-                interval[2] <- interval[2] * 2
+                yhat <- lp1D (x[tridx],y[tridx],H[i],newx=x[teidx],degree=degree,weight=weight,kernel=kernel)$yhat
+                E[i,j] <- E[i,j] + sum((yhat-y[teidx])^2)
             }
-            it <- it + 1
         }
-    }
-    else if(method=='plug.in')
-    {
-        bw <- locpol::pluginBw(x, y, deg, kernel,weig=weig)
-    }
-    else if(method=='thumb')
-    {
-        bw <- locpol::thumbBw(x, y, 1, kernel,weig=weig)
+        
+        E <- apply(E,1,sum)
+        bw <- H[which.min(E)]
+        
+        #}
     }
     else stop('bw must be cv or plug.in or thumb')
-
+    
     return(bw)
 }

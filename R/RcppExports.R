@@ -13,7 +13,11 @@ crawcov <- function(Lt, Ly, weig) {
     .Call('_mcfda_crawcov', PACKAGE = 'mcfda', Lt, Ly, weig)
 }
 
-csmoothcov <- function(bw, kernel_type, tPairs, cxxn, win, xgrid, ygrid, autoCov, delta) {
-    .Call('_mcfda_csmoothcov', PACKAGE = 'mcfda', bw, kernel_type, tPairs, cxxn, win, xgrid, ygrid, autoCov, delta)
+csmoothcov <- function(h, kernel, xy, z, w, xgrid, ygrid, delta) {
+    .Call('_mcfda_csmoothcov', PACKAGE = 'mcfda', h, kernel, xy, z, w, xgrid, ygrid, delta)
+}
+
+csmoothmean <- function(x, z, w, h, kernel, d, newx) {
+    .Call('_mcfda_csmoothmean', PACKAGE = 'mcfda', x, z, w, h, kernel, d, newx)
 }
 

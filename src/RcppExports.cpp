@@ -59,21 +59,37 @@ BEGIN_RCPP
 END_RCPP
 }
 // csmoothcov
-Eigen::MatrixXd csmoothcov(const Eigen::Map<Eigen::VectorXd>& bw, const std::string kernel_type, const Eigen::Map<Eigen::MatrixXd>& tPairs, const Eigen::Map<Eigen::MatrixXd>& cxxn, const Eigen::Map<Eigen::VectorXd>& win, const Eigen::Map<Eigen::VectorXd>& xgrid, const Eigen::Map<Eigen::VectorXd>& ygrid, const bool& autoCov, const double delta);
-RcppExport SEXP _mcfda_csmoothcov(SEXP bwSEXP, SEXP kernel_typeSEXP, SEXP tPairsSEXP, SEXP cxxnSEXP, SEXP winSEXP, SEXP xgridSEXP, SEXP ygridSEXP, SEXP autoCovSEXP, SEXP deltaSEXP) {
+Eigen::MatrixXd csmoothcov(const Eigen::Map<Eigen::VectorXd>& h, const std::string kernel, const Eigen::Map<Eigen::MatrixXd>& xy, const Eigen::Map<Eigen::MatrixXd>& z, const Eigen::Map<Eigen::VectorXd>& w, Eigen::Map<Eigen::VectorXd>& xgrid, Eigen::Map<Eigen::VectorXd>& ygrid, const double delta);
+RcppExport SEXP _mcfda_csmoothcov(SEXP hSEXP, SEXP kernelSEXP, SEXP xySEXP, SEXP zSEXP, SEXP wSEXP, SEXP xgridSEXP, SEXP ygridSEXP, SEXP deltaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type bw(bwSEXP);
-    Rcpp::traits::input_parameter< const std::string >::type kernel_type(kernel_typeSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type tPairs(tPairsSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type cxxn(cxxnSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type win(winSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type xgrid(xgridSEXP);
-    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type ygrid(ygridSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type autoCov(autoCovSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type h(hSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type kernel(kernelSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type xy(xySEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::MatrixXd>& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd>& >::type xgrid(xgridSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd>& >::type ygrid(ygridSEXP);
     Rcpp::traits::input_parameter< const double >::type delta(deltaSEXP);
-    rcpp_result_gen = Rcpp::wrap(csmoothcov(bw, kernel_type, tPairs, cxxn, win, xgrid, ygrid, autoCov, delta));
+    rcpp_result_gen = Rcpp::wrap(csmoothcov(h, kernel, xy, z, w, xgrid, ygrid, delta));
+    return rcpp_result_gen;
+END_RCPP
+}
+// csmoothmean
+Eigen::MatrixXd csmoothmean(const Eigen::Map<Eigen::VectorXd>& x, const Eigen::Map<Eigen::VectorXd>& z, const Eigen::Map<Eigen::VectorXd>& w, const double h, const std::string kernel, const int d, Eigen::Map<Eigen::VectorXd>& newx);
+RcppExport SEXP _mcfda_csmoothmean(SEXP xSEXP, SEXP zSEXP, SEXP wSEXP, SEXP hSEXP, SEXP kernelSEXP, SEXP dSEXP, SEXP newxSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type z(zSEXP);
+    Rcpp::traits::input_parameter< const Eigen::Map<Eigen::VectorXd>& >::type w(wSEXP);
+    Rcpp::traits::input_parameter< const double >::type h(hSEXP);
+    Rcpp::traits::input_parameter< const std::string >::type kernel(kernelSEXP);
+    Rcpp::traits::input_parameter< const int >::type d(dSEXP);
+    Rcpp::traits::input_parameter< Eigen::Map<Eigen::VectorXd>& >::type newx(newxSEXP);
+    rcpp_result_gen = Rcpp::wrap(csmoothmean(x, z, w, h, kernel, d, newx));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -82,7 +98,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_mcfda_RgradQ", (DL_FUNC) &_mcfda_RgradQ, 9},
     {"_mcfda_RhessianQ", (DL_FUNC) &_mcfda_RhessianQ, 10},
     {"_mcfda_crawcov", (DL_FUNC) &_mcfda_crawcov, 3},
-    {"_mcfda_csmoothcov", (DL_FUNC) &_mcfda_csmoothcov, 9},
+    {"_mcfda_csmoothcov", (DL_FUNC) &_mcfda_csmoothcov, 8},
+    {"_mcfda_csmoothmean", (DL_FUNC) &_mcfda_csmoothmean, 7},
     {NULL, NULL, 0}
 };
 

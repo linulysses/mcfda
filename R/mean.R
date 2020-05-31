@@ -1,4 +1,4 @@
-#' Estimate the mean function from functional data/snippets
+#' Estimate Mean Function
 #' @param t a list of vectors (for irregular design) or a vector (for regular design) containing time points of observations for each individual. Each vector should be in ascending order
 #' @param y a list of vectors (for irregular design) or a matrix (for regular design) containing the observed values at \code{t}. If it is a matrix, the columns correspond to the time points in the vector \code{t}
 #' @param newt  a list of vectors or a vector containing time points of observations to be evaluated. If NULL, then newt is treated as t
@@ -7,11 +7,37 @@
 #' @param ... other parameters required depending on the \code{method} and \code{tuning}; see details
 #' @details
 #'     \itemize{
-#'         \item{When \code{method='PACE'}, additional parameters \code{kernel} and \code{deg} can be provided. \code{bw} as a scalar is optional. When \code{bw} is provided, the bandwidth is set to \code{bw}}
-#'         \item{When \code{method='FOURIER'}, additional parameters \code{q},\code{rho},\code{ext} and \code{domain} are optional. If they are not provided, then they will be deduced from data or selected by the specified \code{tuning} method.}
+#'         \item{When \code{method='PACE'}, additional parameters are}
+#'         \describe{
+#'             \item{\code{kernel}}{kernel type; supported are 'epanechnikov', "rectangular", "triangular", "quartic", "triweight", "tricube", "cosine", "gauss", "logistic", "sigmoid" and "silverman"; see https://en.wikipedia.org/wiki/Kernel_(statistics) for more details.}
+#'             \item{\code{deg}}{degree of the local polynomial regression; currently only \code{deg=1} is supported.}
+#'             \item{\code{bw}}{bandwidth}
+#'         }
+#'         \item{When \code{method='FOURIER'}, additional parameters are}
+#'         \describe{
+#'             \item{\code{q}}{number of basis functions; if \code{NULL} then selected by \code{tuning} method}
+#'             \item{\code{rho}}{roughness penalty parameter; if \code{NULL} then selected by \code{tuning} method}
+#'             \item{\code{ext}}{extension margin of Fourier extension; if \code{NULL} then selected by \code{tuning} method}
+#'             \item{\code{domain}}{time domain; if \code{NULL} then estimated by \code{(min(t),max(t))}}
+#'         }
 #'     }
 #'
 #' @return an object of the class 'meanfunc' containing necessary information to predict the mean function
+#' \itemize{
+#'     \item{When \code{method='PACE'}, additional parameters are}
+#'         \describe{
+#'             \item{\code{fitted}}{fitted value at \code{newt}}
+#'             \item{\code{bw}}{selected bandwidth by \code{tuning} method if \code{NULL} is the input for \code{bw}.}
+#'         }
+#'     \item{When \code{method='FOURIER'}, additional parameters are}
+#'         \describe{
+#'             \item{\code{fitted}}{fitted value at \code{newt}}
+#'             \item{\code{q}}{selected \code{q} if \code{NULL} is the input}
+#'             \item{\code{rho}}{selected \code{rho} if \code{NULL} is the input}
+#'             \item{\code{ext}}{selected \code{ext} if \code{NULL} is the input}
+#'             \item{\code{bhat}}{estimated coefficients}
+#'         }
+#' }
 #' 
 #' @importFrom Rdpack reprompt
 #' @references 
@@ -59,6 +85,9 @@ meanfunc <- function(t,y,newt=NULL,method=c('PACE','FOURIER'),
     else stop('t must be a list of vectors (for irregular design) or a vector (for regular design')
 
     class(R) <- 'meanfunc'
+    
+    if(!is.null(newt)) R$fitted <- predict(R,newt)
+    
     return(R)
 }
 
@@ -107,16 +136,21 @@ mean.pace <- function(t,y,tuning,weig,...)
     }
 
 
-    kernel <- toupper(get.optional.param('kernel',others,'EPANECHNIKOV'))
-    kernel <- match.arg(kernel,c('GAUSSIAN','EPANECHNIKOV'))
-    if(kernel == 'GAUSSIAN') kernel <- locpol::gaussK
-    else kernel <- locpol::EpaK
+    kernel <- tolower(get.optional.param('kernel',others,'epanechnikov'))
+    #kernel <- match.arg(kernel,c('GAUSSIAN','EPANECHNIKOV'))
+    #if(kernel == 'GAUSSIAN') kernel <- locpol::gaussK
+    #else kernel <- locpol::EpaK
 
     deg <- get.optional.param('deg',others,1)
     bw <- get.optional.param('bw',others,NULL)
+    
+    ord <- sort(x,index.return=T)$ix
+    x <- x[ord]
+    y <- y[ord]
+    weig <- weig[ord]
 
-    if(is.null(bw))
-        bw <- compute.bw.1D(x,y,tuning,weig,kernel,deg)
+    if(is.null(bw)) bw <- bw.lp1D(x,y,weight=weig,kernel=kernel,degree=deg,method='cv',K=5,H=NULL)
+        #bw <- compute.bw.1D(x,y,tuning,weig,kernel,deg)
 
     R <- list(bw=bw,x=x,y=y,n=n,method='PACE',domain=domain,
               weig=weig,kernel=kernel,deg=deg,yend=c(NULL,NULL))
@@ -350,14 +384,29 @@ predict.meanfunc <- function(meanfunc.obj,newt)
         idxl <- newt < meanfunc.obj$domain[1]
         idxu <- newt > meanfunc.obj$domain[2]
         idx <- (!idxl) & (!idxu)
+        
+        newt0 <- newt[idx]
+        ord <- sort(newt0,index.return=T)$ix
+        
+        tmp <- rep(Inf,length(newt0))
+        
+        tmp[ord] <- lp1D(x=meanfunc.obj$x,
+                         y=meanfunc.obj$y,
+                         h=meanfunc.obj$bw,
+                         newx=newt0[ord],
+                         degree=meanfunc.obj$deg,
+                         weight=meanfunc.obj$weig,
+                         kernel=meanfunc.obj$kernel,
+                         sorted=T)$yhat
+        
 
-        tmp <- loclin1D(x=meanfunc.obj$x,
-                               y=meanfunc.obj$y,
-                               newx=newt[idx],
-                               bw=meanfunc.obj$bw,
-                               weig=meanfunc.obj$weig,
-                               kernel=meanfunc.obj$kernel,
-                               deg=meanfunc.obj$deg)$fitted
+        # tmp <- loclin1D(x=meanfunc.obj$x,
+        #                        y=meanfunc.obj$y,
+        #                        newx=newt[idx],
+        #                        bw=meanfunc.obj$bw,
+        #                        weig=meanfunc.obj$weig,
+        #                        kernel=meanfunc.obj$kernel,
+        #                        deg=meanfunc.obj$deg)$fitted
 
         yhat <- rep(0,length(newt))
         yhat[idx] <- tmp
@@ -426,9 +475,10 @@ predict.meanfunc <- function(meanfunc.obj,newt)
 }
 
 
-#' plot the estimated mean function
+#' Plot Estimated Mean Function
 #' @param meanfunc.obj the object obtained by calling \code{meanfunc}
 #' @param ... other parameters passed to \code{plot}
+#' @return a plot of the estimated mean function
 #' @export
 plot.meanfunc <- function(meanfunc.obj,...)
 {

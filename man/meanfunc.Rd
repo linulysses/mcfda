@@ -4,8 +4,15 @@
 \alias{meanfunc}
 \title{Estimate the mean function from functional data/snippets}
 \usage{
-meanfunc(t, y, newt = NULL, method = c("PACE", "FOURIER"),
-  tuning = "cv", weig = NULL, ...)
+meanfunc(
+  t,
+  y,
+  newt = NULL,
+  method = c("PACE", "FOURIER"),
+  tuning = "cv",
+  weig = NULL,
+  ...
+)
 }
 \arguments{
 \item{t}{a list of vectors (for irregular design) or a vector (for regular design) containing time points of observations for each individual. Each vector should be in ascending order}

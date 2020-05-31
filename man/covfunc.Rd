@@ -4,8 +4,15 @@
 \alias{covfunc}
 \title{Estimate the cov function from functional data/snippets.}
 \usage{
-covfunc(t, y, newt = NULL, mu = NULL, weig = NULL,
-  method = c("FOURIER", "PACE", "SP"), ...)
+covfunc(
+  t,
+  y,
+  newt = NULL,
+  mu = NULL,
+  weig = NULL,
+  method = c("FOURIER", "PACE", "SP"),
+  ...
+)
 }
 \arguments{
 \item{t}{a list of vectors (for irregular design) or a vector (for regular design) containing time points of observations for each individual; each vector should be in ascending order.}
@@ -45,6 +52,7 @@ an object of the class 'covfunc' containing necessary information to predict/eva
         }
         \item{When \code{method='SP'}, additional parameters are} 
         \describe{
+            \item{\code{fitted}}{fitted value at the grid spanned by \code{newt}}
             \item{\code{domain}}{time domain; if \code{NULL} then estimated by \code{(min(t),max(t))}.}
             \item{\code{rho}}{estimated function of the form \code{function(x,y)} of the correlation structure.}
             \item{\code{sig2e}}{estiamted variance of measurement error if \code{NULL} is the input.}

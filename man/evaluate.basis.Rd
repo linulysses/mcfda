@@ -4,9 +4,13 @@
 \alias{evaluate.basis}
 \title{Evaluate orthonormal basis functions on a grid}
 \usage{
-evaluate.basis(K, m = 51, domain = c(0, 1), grid = seq(domain[1],
-  domain[2], length.out = m), type = c("FOURIER", "COS", "SIN",
-  "LEGENDRE"))
+evaluate.basis(
+  K,
+  m = 51,
+  domain = c(0, 1),
+  grid = seq(domain[1], domain[2], length.out = m),
+  type = c("FOURIER", "COS", "SIN", "LEGENDRE")
+)
 }
 \arguments{
 \item{K}{A positive integer specifying the number of eigenfunctions to generate.}

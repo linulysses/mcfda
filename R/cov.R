@@ -1,4 +1,4 @@
-#' Estimate the cov function from functional data/snippets.
+#' Estimate Covariance Function
 #' @param t a list of vectors (for irregular design) or a vector (for regular design) containing time points of observations for each individual; each vector should be in ascending order.
 #' @param y a list of vectors (for irregular design) or a matrix (for regular design) containing the observed values at \code{t}; if it is a matrix, the columns correspond to the time points in the vector \code{t}.
 #' @param newt  a list of vectors or a vector containing time points of observations to be evaluated; if NULL, then \code{newt} is treated as \code{t}.
@@ -137,7 +137,7 @@ predict.covfunc <- function(covobj,newt)
                                      yin=covobj$y,
                                      xout1=newx,
                                      xout2=newx,
-                                     win=covobj$weight,
+                                     win=covobj$weig,
                             delta=covobj$delta)
 
         }

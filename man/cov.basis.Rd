@@ -4,9 +4,19 @@
 \alias{cov.basis}
 \title{Covariance estimation by basis expansion}
 \usage{
-cov.basis(Lt, Ly, p = NULL, lam = NULL, ext = NULL, newt = NULL,
-  mu = NULL, tuning = "lle", weig = NULL, maxIt = 3,
-  domain = c(0, 1))
+cov.basis(
+  Lt,
+  Ly,
+  p = NULL,
+  lam = NULL,
+  ext = NULL,
+  newt = NULL,
+  mu = NULL,
+  tuning = "lle",
+  weig = NULL,
+  maxIt = 3,
+  domain = c(0, 1)
+)
 }
 \arguments{
 \item{Lt}{a list (for irregular design) or a vector (for regular design)}

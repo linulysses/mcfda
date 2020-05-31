@@ -4,9 +4,22 @@
 \alias{estimate.theta}
 \title{Estimate the parameters of the correlation structure}
 \usage{
-estimate.theta(Lt, Ly, D, var.hat, mu.hat, method, rho, weig = NULL,
-  theta.lb = NULL, theta.ub = NULL, h = 0.1, domain = c(0, 1),
-  pfunc = NULL, theta0 = NULL)
+estimate.theta(
+  Lt,
+  Ly,
+  D,
+  var.hat,
+  mu.hat,
+  method,
+  rho,
+  weig = NULL,
+  theta.lb = NULL,
+  theta.ub = NULL,
+  h = 0.1,
+  domain = c(0, 1),
+  pfunc = NULL,
+  theta0 = NULL
+)
 }
 \arguments{
 \item{D}{the number of parameters}

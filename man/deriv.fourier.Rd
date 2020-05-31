@@ -4,8 +4,13 @@
 \alias{deriv.fourier}
 \title{Evaluate derivatives of Fourier basis functions on a grid}
 \usage{
-\method{deriv}{fourier}(K, m = 51, domain = c(0, 1),
-  grid = seq(domain[1], domain[2], length.out = m), r = 2)
+\method{deriv}{fourier}(
+  K,
+  m = 51,
+  domain = c(0, 1),
+  grid = seq(domain[1], domain[2], length.out = m),
+  r = 2
+)
 }
 \arguments{
 \item{K}{A positive integer specifying the number of eigenfunctions to generate.}

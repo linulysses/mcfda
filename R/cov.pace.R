@@ -84,7 +84,7 @@ create.cov.pace.obj <- function(Lt,Ly,bw,mu,weig,method,delta=1,nRegGrid=51,kern
 
     if(is.null(mu)) mu <- meanfunc(Lt,Ly,method='PACE')
     if(is.null(weig)) weig <- 'SUBJ'
-    weight <- get.weig.cov(Lt,Ly,scheme=weig)
+    weig <- get.weig.cov(Lt,Ly,scheme=weig)
 
 
     x1 <- list()
@@ -99,7 +99,7 @@ create.cov.pace.obj <- function(Lt,Ly,bw,mu,weig,method,delta=1,nRegGrid=51,kern
         y[[i]] <- as.vector(yc %*% t(yc))
         x1[[i]] <- as.vector(Ti$X)
         x2[[i]] <- as.vector(Ti$Y)
-        w[[i]] <- rep(weight[i],length(y[[i]]))
+        w[[i]] <- rep(weig[i],length(y[[i]]))
     }
 
     x1 <- unlist(x1)
@@ -114,7 +114,7 @@ create.cov.pace.obj <- function(Lt,Ly,bw,mu,weig,method,delta=1,nRegGrid=51,kern
     y <- y[idx]
     w <- w[idx]
 
-    R <- list(kernel=kernel,x=cbind(x1,x2),y=y,weight=w,nRegGrid=nRegGrid,
+    R <- list(kernel=kernel,x=cbind(x1,x2),y=y,weig=w,nRegGrid=nRegGrid,
               bw=bw,Lt=Lt,Ly=Ly,mu=mu,method=method,delta=delta)
     class(R) <- 'covfunc'
     return(R)
@@ -134,7 +134,7 @@ GetSmoothedCovarSurface <- function(covobj, obsGrid, regGrid, kernel='epanechnik
                               regGrid < minGrid + diff(rangeGrid) +
                               buff]
 
-    rcov <- list(tPairs=covobj$x,cxxn=covobj$y,win=covobj$weight,dataType='Sparse')
+    rcov <- list(tPairs=covobj$x,cxxn=covobj$y,win=covobj$weig,dataType='Sparse')
 
     bw <- covobj$bw
     if(is.null(bw) || length(bw) > 1)
@@ -148,7 +148,7 @@ GetSmoothedCovarSurface <- function(covobj, obsGrid, regGrid, kernel='epanechnik
     #    if (!useBinnedCov) {
 
     smoothCov <- Lwls2D(bw, kernel, xin=rcov$tPairs, yin=rcov$cxxn,
-                        xout1=cutRegGrid, xout2=cutRegGrid, win=covobj$weight,
+                        xout1=cutRegGrid, xout2=cutRegGrid, win=covobj$weig,
                         delta=covobj$delta)
 
 
@@ -511,16 +511,16 @@ Lwls2D <- function(bw, kernel='epanechnikov', xin, yin, win=NULL, xout1=NULL, xo
     storage.mode(xout2) <- 'numeric'
 
 
-        if(method == 'plain'){
-            ret <- csmoothcov(bw, kernel, t(xin), yin, win,xout1, xout2, TRUE,delta)
-        } else if (method == 'sort2'){
-            ord <- order(xin[, 1])
-            xin <- xin[ord, ]
-            yin <- yin[ord]
-            win <- win[ord]
-            # browser()
-            ret <- csmoothcov(bw, kernel, t(xin), yin, win,xout1, xout2, TRUE,delta)
-        }
+    if(method == 'plain'){
+        ret <- csmoothcov(bw, kernel, xin, yin, win,xout1, xout2, delta)
+    } else if (method == 'sort2'){
+        ord <- order(xin[, 1])
+        xin <- xin[ord, ]
+        yin <- yin[ord]
+        win <- win[ord]
+        # browser()
+        ret <- csmoothcov(bw, kernel, xin, yin, win,xout1, xout2, delta)
+    }
 
 
     return(ret)
