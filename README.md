@@ -15,7 +15,7 @@ mu <- function(s) sin(2*pi*s)
 
 cov <- synfd::matern
 
-D <- synfd::sparse.fd(mu=mu, X=synfd::gaussian.process(cov), n=100, m=5)
+D <- synfd::irreg.fd(mu=mu, X=synfd::gaussian.process(cov), n=100, m=5)
 
 ### estimate mean by 'FOURIER' (local polynomial) method
 mu.obj <- meanfunc(D$t,D$y,newt=NULL,method='FOURIER',
