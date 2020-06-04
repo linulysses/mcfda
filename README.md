@@ -99,3 +99,8 @@ R <- fdapace::FPCA(D$y,D$t,optns)
 ### plot the first FPC, etc
 plot(R$phi[,1])
 
+
+## References
+Lin, Z. and Wang, J.-L. (2020+). [Mean and covariance estimation for functional snippets](https://www.tandfonline.com/doi/full/10.1080/01621459.2020.1777138). Journal of the American Statistical Association. to appear.
+
+Lin, Z., Zhong, Q. and Wang, J.-L. (2020+). [Basis expansions for functional snippets](https://arxiv.org/abs/1905.07067). preprint.
