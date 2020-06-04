@@ -81,7 +81,8 @@ sig2
 abs(sig2 - attr(D,'sig')^2)
 
 
-### to do FPCA, we can use fdapace package, note the use of userCov, userMu and userSigma2
+## FPCA via [fdapace](https://cran.r-project.org/web/packages/fdapace/index.html) package
+Once the mean and covariance functions are obtained, the fdapace package can used with the options userCov, userMu and userSigma2 to perform FPCA:
 
 error <- ifelse(sig2==0,yes=FALSE,no=TRUE)
 
