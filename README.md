@@ -103,7 +103,7 @@ plot(R$phi[,1])
 ## References
 Lin, Z. and Wang, J.-L. (2020+). [Mean and covariance estimation for functional snippets](https://www.tandfonline.com/doi/full/10.1080/01621459.2020.1777138). Journal of the American Statistical Association. to appear.
 
-Lin, Z., Zhong, Q. and Wang, J.-L. (2020+). [Basis expansions for functional snippets](https://arxiv.org/abs/1905.07067). preprint.
+Lin, Z., Wang, J.-L. and Zhong, Q. (2020+). [Basis expansions for functional snippets](https://arxiv.org/abs/1905.07067). preprint.
 
 Yao, F., Müller, H.-G. and Wang, J.-L. (2005). [Functional Data Analysis for Sparse Longitudinal Data](
 https://www.tandfonline.com/doi/abs/10.1198/016214504000001745). Journal
