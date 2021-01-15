@@ -81,7 +81,8 @@ sig2
 abs(sig2 - attr(D,'sig')^2)
 
 
-### to do FPCA, we can use fdapace package, note the use of userCov, userMu and userSigma2
+## FPCA via [fdapace](https://cran.r-project.org/web/packages/fdapace/index.html) package
+Once the mean and covariance functions are obtained, the fdapace package can used with the options userCov, userMu and userSigma2 to perform FPCA:
 
 error <- ifelse(sig2==0,yes=FALSE,no=TRUE)
 
@@ -98,3 +99,12 @@ R <- fdapace::FPCA(D$y,D$t,optns)
 ### plot the first FPC, etc
 plot(R$phi[,1])
 
+
+## References
+Lin, Z. and Wang, J.-L. (2020+). [Mean and covariance estimation for functional snippets](https://www.tandfonline.com/doi/full/10.1080/01621459.2020.1777138). Journal of the American Statistical Association. to appear.
+
+Lin, Z., Wang, J.-L. and Zhong, Q. (2020+). [Basis expansions for functional snippets](https://arxiv.org/abs/1905.07067). preprint.
+
+Yao, F., Müller, H.-G. and Wang, J.-L. (2005). [Functional Data Analysis for Sparse Longitudinal Data](
+https://www.tandfonline.com/doi/abs/10.1198/016214504000001745). Journal
+Journal of the American Statistical Association. 100(470): 577-590.
