@@ -59,7 +59,7 @@ sigma2 <- function(t,y,h=NULL)
 
         L <- L1+L3-2*L2
         L <- L^2
-        sig2 <- mean(L)/3
+        sig2 <- mean(L)/6
 
     }
     else stop('unsupported data type')
